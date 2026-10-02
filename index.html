@@ -1,11 +1,231 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Website</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Falcon Dunes Gaggle</title>
+<meta name="description" content="Weekly sign-ups, tee sheets and Stableford handicaps for the Falcon Dunes Gaggle.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9B%B3%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#eef1ec;--panel:#fff;--ink:#1c2a24;--mute:#5d6b63;--line:#d3dad3;--green:#1f5a3f;--green-ink:#fff;--flag:#c4452d;--sand:#e8dfc4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a16;--panel:#1b2620;--ink:#e6ece7;--mute:#9aa9a0;--line:#2e3d34;--green:#4c9a73;--green-ink:#0e1612;--flag:#e5775f;--sand:#2c3326}}
+:root[data-theme="dark"]{--bg:#121a16;--panel:#1b2620;--ink:#e6ece7;--mute:#9aa9a0;--line:#2e3d34;--green:#4c9a73;--green-ink:#0e1612;--flag:#e5775f;--sand:#2c3326}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--green);color:var(--green-ink);padding:18px 16px 0}
+.wrap{max-width:900px;margin:0 auto}
+h1{font:700 26px/1.2 Georgia,"Times New Roman",serif;margin:0 0 2px}
+header p{margin:0 0 12px;opacity:.85;font-size:14px}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav button{background:transparent;color:inherit;border:0;padding:10px 14px;font:inherit;font-size:15px;cursor:pointer;border-radius:8px 8px 0 0;white-space:nowrap;opacity:.8}
+nav button.on{background:var(--bg);color:var(--ink);opacity:1;font-weight:600}
+main{padding:16px}
+h2{font:700 21px/1.3 Georgia,serif;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;max-width:100%}
+textarea{width:100%;min-height:120px;font-size:14px}
+button.btn{background:var(--green);color:var(--green-ink);border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600}
+button.alt{background:transparent;color:var(--green);border:1px solid var(--green);border-radius:6px;padding:7px 12px;cursor:pointer}
+button.x{background:none;border:0;color:var(--flag);cursor:pointer;font-size:18px;padding:0 6px}
+:focus-visible{outline:3px solid var(--flag);outline-offset:2px}
+.list>div{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.list>div:first-child{border-top:0}
+.grow{flex:1;min-width:0}
+.mute{color:var(--mute);font-size:13px}
+.hc{font-variant-numeric:tabular-nums;font-weight:700;min-width:48px;text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
+.grid label{display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:pointer}
+.grid label.on{background:var(--sand);border-color:var(--green)}
+.gh{background:var(--sand);padding:6px 10px;border-radius:6px;font-weight:700;margin:12px 0 2px;display:flex;justify-content:space-between}
+.empty{padding:22px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:10px}
+label.f{display:block;font-size:14px;color:var(--mute);margin:8px 0 3px}
+.note{background:var(--sand);padding:10px 12px;border-radius:8px;font-size:14px;margin-bottom:14px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+</style>
 </head>
-
 <body>
-    <h1>Welcome to My Website!</h1>
-    <p>My first website is online!</p>
+<header><div class="wrap">
+<h1>Falcon Dunes Gaggle</h1>
+<p>Weekly sign-ups, tee sheets and Stableford handicaps</p>
+<nav id="nav"></nav>
+</div></header>
+<main><div class="wrap" id="app"></div></main>
+<footer style="text-align:center;padding:20px;color:var(--mute);font-size:13px">Falcon Dunes Gaggle</footer>
+<div id="toast" role="status"></div>
+<script>
+var KEY='gaggle-v1';
+var TABS=[['home','Home'],['players','Players'],['signups','Sign-ups'],['teesheet','Tee sheet'],['scores','Scores & handicaps'],['send','Send tee sheet']];
+var S=load(), tab='home', wk=nextSat();
+
+function load(){try{var r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
+ return {players:[],weeks:{},tees:['Black','Blue','White','Gold','Red'],bestN:10,groupSize:4,owner:''}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function nextSat(){var d=new Date();d.setDate(d.getDate()+(6-d.getDay()+7)%7);return ymd(d)}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmt(k){return new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function uid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function W(){return S.weeks[wk]||(S.weeks[wk]={playing:{},tee:{},group:{},score:{}})}
+function sorted(){return S.players.slice().sort(function(a,b){return a.name.localeCompare(b.name)})}
+function pl(id){return S.players.find(function(p){return p.id===id})}
+function playing(){return sorted().filter(function(p){return W().playing[p.id]})}
+function teeOf(p){return W().tee[p.id]||p.tee||S.tees[0]}
+
+/* Handicap: average of best N of the player's last 10 Stableford scores (optionally only weeks before `before`) */
+function scoresFor(id,before){
+ return Object.keys(S.weeks).sort().filter(function(k){return !before||k<before})
+  .map(function(k){return S.weeks[k].score[id]}).filter(function(v){return v!=null&&v!==''}).map(Number).slice(-10)}
+function hcap(id,before){
+ var s=scoresFor(id,before);if(!s.length){var pp=pl(id);return pp&&pp.start!==''&&pp.start!=null?+pp.start:null}
+ s.sort(function(a,b){return b-a});s=s.slice(0,Math.min(S.bestN,s.length));
+ return s.reduce(function(a,b){return a+b},0)/s.length}
+function hf(h){return h==null?'–':h.toFixed(1)}
+
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.className='show';setTimeout(function(){t.className=''},1800)}
+function copy(id){var el=document.getElementById(id);el.select();var ok=false;
+ try{ok=document.execCommand('copy')}catch(e){}
+ if(!ok&&navigator.clipboard){navigator.clipboard.writeText(el.value).then(function(){toast('Copied')});return}
+ toast(ok?'Copied':'Select the text and copy it')}
+function mail(subject,bodyId){
+ var emails=S.players.map(function(p){return p.email}).filter(Boolean);
+ if(!emails.length){toast('Add player emails first');return}
+ var a=document.createElement('a');
+ a.href='mailto:?bcc='+encodeURIComponent(emails.join(','))+'&subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(document.getElementById(bodyId).value);
+ a.target='_blank';document.body.appendChild(a);a.click();a.remove()}
+function go(t){tab=t;render()}
+function setWk(v){if(v){wk=v;render()}}
+
+/* ---------- Home ---------- */
+function vHome(){
+ var g=groupsOf(),ng=Object.keys(g).filter(function(k){return +k>0}).length;
+ function stat(n,l){return '<div class="card" style="flex:1;min-width:140px;text-align:center;margin:0"><div style="font:700 34px/1.1 Georgia,serif;color:var(--green)">'+n+'</div><div class="mute">'+l+'</div></div>'}
+ return '<h2 style="font-size:28px">Next game: '+fmt(wk)+'</h2><p class="sub">Falcon Dunes Gaggle weekly game</p>'+weekPicker()+
+ '<div class="row" style="margin-bottom:14px;align-items:stretch">'+stat(playing().length,'signed up')+stat(ng,'groups set')+stat(S.players.length,'in the Gaggle')+'</div>'+
+ '<div class="card"><strong>Your weekly routine</strong><ol style="margin:8px 0 0;padding-left:20px"><li><a href="#" onclick="go(\'signups\');return false">Monday:</a> send the sign-up email.</li><li>As replies come in, check off who is playing.</li><li><a href="#" onclick="go(\'teesheet\');return false">Wednesday:</a> set tee boxes and groups, then <a href="#" onclick="go(\'send\');return false">send the tee sheet</a>.</li><li><a href="#" onclick="go(\'scores\');return false">After the game:</a> enter Stableford points to update handicaps.</li></ol></div>'+
+ '<p class="mute">Everything is saved in this browser only. Use the backup option on the Players tab to move it to another device.</p>'}
+
+/* ---------- Players ---------- */
+function addPlayer(){
+ var n=document.getElementById('pn').value.trim();if(!n)return;
+ S.players.push({id:uid(),name:n,email:document.getElementById('pe').value.trim(),start:document.getElementById('pt').value});
+ save();render()}
+function bulkAdd(){
+ var lines=document.getElementById('bulk').value.split('\n'),c=0;
+ lines.forEach(function(l){var p=l.split(/[,\t]/).map(function(x){return x.trim()});
+  if(p[0]){S.players.push({id:uid(),name:p[0],email:p[1]||'',start:p[2]&&!isNaN(p[2])?+p[2]:''});c++}});
+ save();render();toast(c+' players added')}
+function delPlayer(id){var p=pl(id);if(!confirm('Remove '+p.name+'? Their past scores stay in the history but they leave the roster.'))return;
+ S.players=S.players.filter(function(x){return x.id!==id});save();render()}
+function setP(id,k,v){pl(id)[k]=v;save()}
+function setCfg(k,v){S[k]=v;save()}
+function setTees(v){var t=v.split(',').map(function(x){return x.trim()}).filter(Boolean);if(t.length){S.tees=t;save();render()}}
+function restore(){try{var d=JSON.parse(document.getElementById('bk').value);if(!d.players)throw 0;S=d;save();render();toast('Backup restored')}catch(e){toast('That backup text is not valid')}}
+
+function vPlayers(){
+ 
+ var list=sorted().map(function(p){
+  return '<div><div class="grow"><strong>'+esc(p.name)+'</strong><br><input type="email" aria-label="Email for '+esc(p.name)+'" value="'+esc(p.email)+'" placeholder="email" onchange="setP(\''+p.id+'\',\'email\',this.value)" style="width:100%;max-width:280px;padding:3px 6px;font-size:13px"></div>'+
+  '<input type="number" step="0.1" aria-label="Starting handicap for '+esc(p.name)+'" title="Starting handicap (used until scores are entered)" placeholder="Handicap" value="'+(p.start==null?'':esc(p.start))+'" style="width:90px" onchange="setP(\''+p.id+'\',\'start\',this.value)">'+
+  '<span class="hc" title="Current handicap">'+hf(hcap(p.id))+'</span><button class="x" aria-label="Remove '+esc(p.name)+'" onclick="delPlayer(\''+p.id+'\')">×</button></div>'}).join('');
+ return '<h2>Players</h2><p class="sub">'+S.players.length+' in the Gaggle. Enter a starting handicap for each golfer. It is used until their scores are entered, then the handicap is calculated from their scores. Tee boxes are set on the tee sheet.</p>'+
+ '<div class="card"><div class="row"><input id="pn" placeholder="Name"><input id="pe" type="email" placeholder="Email"><input id="pt" type="number" step="0.1" aria-label="Starting handicap" placeholder="Handicap" style="width:100px"><button class="btn" onclick="addPlayer()">Add player</button></div>'+
+ '<details style="margin-top:10px"><summary>Add many players at once</summary><label class="f" for="bulk">One per line: name, email, starting handicap (handicap is optional)</label><textarea id="bulk" placeholder="Jim Smith, jim@example.com, 18.5"></textarea><button class="alt" onclick="bulkAdd()">Add these players</button></details></div>'+
+ (S.players.length?'<div class="card list">'+list+'</div>':'<div class="empty">No players yet. Add your first golfer above.</div>')+
+ '<div class="card"><label class="f" for="tl">Tee boxes (comma separated, longest to shortest)</label><input id="tl" style="width:100%" value="'+esc(S.tees.join(', '))+'" onchange="setTees(this.value)">'+
+ '<label class="f" for="ow">Your name (used to sign the emails)</label><input id="ow" value="'+esc(S.owner)+'" onchange="setCfg(\'owner\',this.value)">'+
+ '<details style="margin-top:12px"><summary>Backup and restore</summary><p class="mute">Your data is saved in this browser only. Copy a backup now and then, and paste it back here to restore it on another device.</p>'+
+ '<textarea id="bk" aria-label="Backup text">'+esc(JSON.stringify(S))+'</textarea><div class="row"><button class="alt" onclick="copy(\'bk\')">Copy backup</button><button class="alt" onclick="restore()">Restore from pasted backup</button></div></details></div>'}
+
+/* ---------- Sign-ups ---------- */
+function weekPicker(){return '<div class="row" style="margin-bottom:12px"><label for="wk"><strong>Game date</strong></label><input id="wk" type="date" value="'+wk+'" onchange="setWk(this.value)"></div>'}
+function toggle(id,on){var w=W();if(on){w.playing[id]=true}else{delete w.playing[id];delete w.group[id]}
+ save();var c=document.getElementById('cnt');if(c)c.textContent=playing().length;
+ var lab=document.getElementById('l'+id);if(lab)lab.className=on?'on':''}
+function signupBody(){return 'Hi Gaggle,\n\nWe are teeing it up this '+fmt(wk)+'. If you want to play, please reply to this email and let me know by Wednesday morning.\n\nThanks,\n'+(S.owner||'')}
+function vSignups(){
+ var subj='Falcon Dunes Gaggle: are you in for '+fmt(wk)+'?';
+ var boxes=sorted().map(function(p){var on=W().playing[p.id];
+  return '<label id="l'+p.id+'" class="'+(on?'on':'')+'"><input type="checkbox" '+(on?'checked':'')+' onchange="toggle(\''+p.id+'\',this.checked)"> <span class="grow">'+esc(p.name)+'</span></label>'}).join('');
+ return '<h2>Sign-ups</h2><p class="sub">Send the Monday email, then check off everyone who replies yes.</p>'+weekPicker()+
+ '<div class="card"><strong>Monday sign-up email</strong><label class="f" for="sb">Message (edit as you like)</label><textarea id="sb">'+esc(signupBody())+'</textarea>'+
+ '<div class="row" style="margin-top:8px"><button class="btn" onclick="mail(\''+esc(subj).replace(/'/g,"\\'")+'\',\'sb\')">Open in my email app</button><button class="alt" onclick="copy(\'sb\')">Copy message</button><button class="alt" onclick="copyEmails()">Copy all email addresses</button></div>'+
+ '<p class="mute" style="margin-bottom:0">This opens a draft addressed (BCC) to every player. You press send in your own email app.</p></div>'+
+ '<h2 style="margin-top:20px">Who said yes: <span id="cnt">'+playing().length+'</span></h2>'+
+ (S.players.length?'<div class="grid" style="margin-top:8px">'+boxes+'</div>':'<div class="empty">Add players first on the Players tab.</div>')}
+function copyEmails(){var t=document.createElement('textarea');t.id='tmp';t.value=S.players.map(function(p){return p.email}).filter(Boolean).join(', ');document.body.appendChild(t);copy('tmp');t.remove()}
+
+/* ---------- Tee sheet ---------- */
+function setTee(id,v){W().tee[id]=v;save();render()}
+function setGrp(id,v){W().group[id]=+v;save();render()}
+function autoGroup(){
+ var ps=playing().sort(function(a,b){return (hcap(b.id,wk)||0)-(hcap(a.id,wk)||0)});
+ var n=Math.max(1,Math.ceil(ps.length/S.groupSize)),w=W();w.group={};
+ ps.forEach(function(p,i){var r=Math.floor(i/n),c=i%n;w.group[p.id]=(r%2?n-1-c:c)+1});
+ save();render();toast('Balanced groups created')}
+function clearGroups(){W().group={};save();render()}
+function setSize(v){S.groupSize=Math.max(2,Math.min(5,+v||4));save()}
+function groupsOf(){
+ var ps=playing(),g={};ps.forEach(function(p){var n=W().group[p.id]||0;(g[n]=g[n]||[]).push(p)});return g}
+function vTee(){
+ var ps=playing();
+ if(!ps.length)return '<h2>Tee sheet</h2>'+weekPicker()+'<div class="empty">Nobody is signed up for this date yet. Check people off on the Sign-ups tab.</div>';
+ var g=groupsOf(),max=Math.ceil(ps.length/S.groupSize)+1,html='';
+ var keys=Object.keys(g).map(Number).sort(function(a,b){return (a||99)-(b||99)});
+ keys.forEach(function(k){
+  html+='<div class="gh"><span>'+(k?'Group '+k:'Not in a group yet')+'</span><span>'+g[k].length+'</span></div><div class="list">';
+  g[k].forEach(function(p){
+   var gs='<option value="0">No group</option>';for(var i=1;i<=max;i++)gs+='<option value="'+i+'"'+(W().group[p.id]===i?' selected':'')+'>Group '+i+'</option>';
+   html+='<div><span class="grow">'+esc(p.name)+'</span><span class="hc">'+hf(hcap(p.id,wk))+'</span>'+
+   '<select aria-label="Tee for '+esc(p.name)+'" onchange="setTee(\''+p.id+'\',this.value)">'+S.tees.map(function(t){return '<option'+(t===teeOf(p)?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select>'+
+   '<select aria-label="Group for '+esc(p.name)+'" onchange="setGrp(\''+p.id+'\',this.value)">'+gs+'</select></div>'});
+  html+='</div>'});
+ return '<h2>Tee sheet</h2><p class="sub">'+ps.length+' playing. The number beside each name is the handicap going into this game.</p>'+weekPicker()+
+ '<div class="row" style="margin-bottom:6px"><label for="gs">Players per group</label><input id="gs" type="number" min="2" max="5" value="'+S.groupSize+'" style="width:64px" onchange="setSize(this.value)">'+
+ '<button class="btn" onclick="autoGroup()">Auto-group by handicap</button><button class="alt" onclick="clearGroups()">Clear groups</button></div>'+html}
+
+/* ---------- Scores ---------- */
+function setScore(id,v){var w=W();if(v===''){delete w.score[id]}else{w.score[id]=Math.max(0,Math.min(80,+v))}save();var t=document.getElementById('ht');if(t)t.innerHTML=hTable()}
+function hTable(){
+ var rows=sorted().map(function(p){return {p:p,h:hcap(p.id),n:Math.min(10,scoresFor(p.id).length)}}).sort(function(a,b){return (b.h==null?-1:b.h)-(a.h==null?-1:a.h)});
+ return rows.map(function(r){return '<div><span class="grow">'+esc(r.p.name)+'</span><span class="mute">'+r.n+' round'+(r.n===1?'':'s')+'</span><span class="hc">'+hf(r.h)+'</span></div>'}).join('')}
+function vScores(){
+ var ps=playing();
+ var inputs=ps.length?'<div class="card list">'+ps.map(function(p){var v=W().score[p.id];
+  return '<div><label class="grow" for="s'+p.id+'">'+esc(p.name)+'</label><input id="s'+p.id+'" type="number" min="0" max="80" inputmode="numeric" style="width:84px" value="'+(v==null?'':v)+'" placeholder="points" onchange="setScore(\''+p.id+'\',this.value)"></div>'}).join('')+'</div>':
+  '<div class="empty">Nobody is marked as playing on this date. Check people off on the Sign-ups tab, then enter their scores here.</div>';
+ return '<h2>Scores & handicaps</h2><p class="sub">Enter each player\'s Stableford points for the game. Handicaps update as you type.</p>'+weekPicker()+inputs+
+ '<div class="card"><div class="row" style="justify-content:space-between"><strong>Current handicaps</strong><span><label for="bn" class="mute">Count best </label><input id="bn" type="number" min="1" max="10" value="'+S.bestN+'" style="width:60px" onchange="setCfg(\'bestN\',Math.max(1,Math.min(10,+this.value||10)));render()"><span class="mute"> of last 10</span></span></div>'+
+ '<p class="mute">Handicap = average of the best '+S.bestN+' of a player\'s last 10 Stableford scores. Players with fewer rounds use what they have.</p><div class="list" id="ht">'+hTable()+'</div></div>'}
+
+/* ---------- Send tee sheet ---------- */
+function teeBody(){
+ var g=groupsOf(),keys=Object.keys(g).map(Number).sort(function(a,b){return (a||99)-(b||99)});
+ var t='Hi Gaggle,\n\nHere is the tee sheet for '+fmt(wk)+'.\n';
+ keys.forEach(function(k){t+='\n'+(k?'GROUP '+k:'NOT YET GROUPED')+'\n';
+  g[k].forEach(function(p){t+='  '+p.name+' | '+teeOf(p)+' tees | Handicap '+hf(hcap(p.id,wk))+'\n'})});
+ var out=sorted().filter(function(p){return !W().playing[p.id]});
+ t+='\nCurrent handicaps for everyone:\n';
+ sorted().forEach(function(p){t+='  '+p.name+': '+hf(hcap(p.id,wk))+'\n'});
+ return t+'\nSee you out there,\n'+(S.owner||'')}
+function vSend(){
+ if(!playing().length)return '<h2>Send tee sheet</h2>'+weekPicker()+'<div class="empty">Set up the tee sheet first, then come back to send it.</div>';
+ var subj='Falcon Dunes Gaggle tee sheet: '+fmt(wk);
+ return '<h2>Send tee sheet</h2><p class="sub">Wednesday email to everyone in the Gaggle, with groups, tee boxes and handicaps.</p>'+weekPicker()+
+ '<div class="card"><label class="f" for="tb">Message (edit as you like)</label><textarea id="tb" style="min-height:360px;font-family:ui-monospace,Menlo,monospace">'+esc(teeBody())+'</textarea>'+
+ '<div class="row" style="margin-top:8px"><button class="btn" onclick="mail(\''+esc(subj).replace(/'/g,"\\'")+'\',\'tb\')">Open in my email app</button><button class="alt" onclick="copy(\'tb\')">Copy message</button><button class="alt" onclick="copyEmails()">Copy all email addresses</button></div>'+
+ '<p class="mute" style="margin-bottom:0">Opens a draft addressed (BCC) to all '+S.players.filter(function(p){return p.email}).length+' players with email addresses. You press send in your own email app.</p></div>'}
+
+function render(){
+ document.getElementById('nav').innerHTML=TABS.map(function(t){return '<button class="'+(t[0]===tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+ var v={home:vHome,players:vPlayers,signups:vSignups,teesheet:vTee,scores:vScores,send:vSend}[tab]();
+ document.getElementById('app').innerHTML=v;save()}
+render();
+</script>
 </body>
 </html>
